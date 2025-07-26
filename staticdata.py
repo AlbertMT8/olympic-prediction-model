@@ -66,14 +66,16 @@ def create_prompt(name: str, attempt: int = 0, missing_fields: list = None) -> s
         f"2. HEIGHT: Physical height in centimeters (e.g., 188, 175, 192)\n"
         f"3. WEIGHT: Body weight in kilograms (e.g., 78, 65, 85)\n"
         f"4. GENDER: male or female\n"
-        f"5. ETHNICITY/NATIONALITY: Country or ethnic background\n"
-        f"6. PARIS 2024 EVENTS: Complete list of all swimming events at Paris Olympics\n\n"
+        f"5. RACE: Racial group of the swimmer. Only use one of these 5 options: white, black, asian, hispanic, pacific islander, native american.\n"
+        f"6. PARIS 2024 EVENTS: List of all swimming events this swimmer is entered in at the Paris Olympics.\n"
+        f"   - Each event must be the full official event name, including gender, distance, and stroke (e.g., \"Men's 50m Freestyle\", \"Women's 100m Butterfly\", \"Men's 4x100m Medley Relay\").\n"
+        f"   - Do NOT use only the stroke or relay type. Always include the distance and gender.\n\n"
     )
     if attempt == 0:
         base_prompt += (
             f"EXAMPLES of complete data:\n"
-            f"- Katie Ledecky: born 1997-03-17, 183cm, 70kg, female, American, [multiple events]\n"
-            f"- Caeleb Dressel: born 1996-08-16, 191cm, 88kg, male, American, [sprint events]\n\n"
+            f"- Katie Ledecky: born 1997-03-17, 183cm, 70kg, female, white, [\"Women's 400m Freestyle\", \"Women's 800m Freestyle\", \"Women's 1500m Freestyle\", \"Women's 4x200m Freestyle Relay\"]\n"
+            f"- Caeleb Dressel: born 1996-08-16, 191cm, 88kg, male, white, [\"Men's 50m Freestyle\", \"Men's 100m Freestyle\", \"Men's 100m Butterfly\", \"Men's 4x100m Freestyle Relay\", \"Men's 4x100m Medley Relay\"]\n\n"
             f"Research {name} thoroughly and provide ALL biographical data.\n"
             f"If you cannot find a field, make a best-educated guess based on public records, typical values for elite swimmers, or official Olympic data. Only use null if absolutely no information is available anywhere.\n"
         )
@@ -85,17 +87,19 @@ def create_prompt(name: str, attempt: int = 0, missing_fields: list = None) -> s
             f"Search more thoroughly. Height/weight are in official team rosters and competition records.\n"
             f"Birth dates are in athlete profiles. Competition history is in Olympic records.\n"
             f"DO NOT USE NULL - find the actual data or make a best-educated guess.\n"
+            f"AGAIN: For 'paris_2024_races', use the full official event names, including gender, distance, and stroke, e.g., \"Men's 50m Freestyle\".\n"
+            f"AGAIN: For 'race', only use one of these 5 options: white, black, asian, hispanic, pacific islander, native american.\n"
         )
     base_prompt += (
         f"Return ONLY valid JSON:\n"
         f'{{"name": "{name}", "dob": "YYYY-MM-DD", "height_cm": NUMBER, "weight_kg": NUMBER, '
-        f'"gender": "male/female", "ethnicity": "nationality", "paris_2024_races": ["event1", "event2"]}}'
+        f'"gender": "male/female", "race": "white/black/asian/hispanic/pacific islander/native american", "paris_2024_races": ["event1", "event2"]}}'
     )
     return base_prompt
 
 
 def query_openai(name: str) -> dict:
-    required_fields = ['name', 'dob', 'height_cm', 'weight_kg', 'gender', 'ethnicity', 'paris_2024_races']
+    required_fields = ['name', 'dob', 'height_cm', 'weight_kg', 'gender', 'race', 'paris_2024_races']
     missing_fields = None
     for attempt in range(3):
         time.sleep(1.2 + random.uniform(-0.2, 0.5))
