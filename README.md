@@ -149,13 +149,6 @@ Best Olympic Event: 100m_Freestyle
 Confidence: 85.2%
 ```
 
-## 📈 Model Performance
-
-The current model achieves:
-- **Cross-validation Score**: 40.25%
-- **Test Macro F1**: 39.46%
-- **Test Balanced Accuracy**: 40.10%
-
 ### Model Parameters
 - **Algorithm**: Random Forest Classifier
 - **Estimators**: 200 trees
